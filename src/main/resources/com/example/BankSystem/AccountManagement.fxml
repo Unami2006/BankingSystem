@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<GridPane xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.example.BankSystem.AccountManagementController"
+          alignment="CENTER" hgap="10" vgap="10">
+
+    <!-- Padding -->
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Title -->
+    <Label text="Account Management" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+    <!-- TableView for Accounts -->
+    <TableView fx:id="accountTable">
+        <columns>
+            <TableColumn fx:id="accountIdColumn" text="Account ID"/>
+            <TableColumn fx:id="accountNameColumn" text="Name"/>
+            <TableColumn fx:id="accountBalanceColumn" text="Balance"/>
+        </columns>
+    </TableView>
+
+
+    <!-- Buttons -->
+    <Button text="Add Account" fx:id="addAccountButton" GridPane.columnIndex="0" GridPane.rowIndex="2" prefWidth="150"/>
+    <Button text="Delete Account" fx:id="deleteAccountButton" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="150"/>
+
+</GridPane>

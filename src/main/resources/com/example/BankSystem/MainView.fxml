@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.BankSystem.MainController"
+            prefWidth="600" prefHeight="400">
+
+    <!-- Top: Menu Bar -->
+    <top>
+        <MenuBar>
+            <Menu text="Customer">
+                <MenuItem text="Register New Customer" onAction="#openCustomerView"/>
+            </Menu>
+            <Menu text="Account">
+                <MenuItem text="Manage Accounts" onAction="#openAccountView"/>
+            </Menu>
+            <Menu text="Transactions">
+                <MenuItem text="Deposit / Withdraw" onAction="#openTransactionView"/>
+            </Menu>
+            <Menu text="Logout">
+                <MenuItem text="Logout" onAction="#logout"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <!-- Center: Welcome message -->
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <Label text="Welcome to the Banking System Dashboard"
+                   style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+            <Label text="Use the menu above to navigate through system features."/>
+        </VBox>
+    </center>
+
+</BorderPane>
