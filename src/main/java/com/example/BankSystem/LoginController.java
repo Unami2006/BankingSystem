@@ -31,18 +31,35 @@ public class LoginController {
 
     @FXML
     private void login() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Missing Fields", "Please enter both username and password.");
             return;
         }
 
-        // Simulate a successful login (no dashboard yet)
-        showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome back, " + username + "!");
-        usernameField.clear();
-        passwordField.clear();
+        // Simple login validation (you can connect this to real data later)
+        if (username.equals("admin") && password.equals("1234")) {
+            openDashboard();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
+        }
+    }
+
+    private void openDashboard() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/MainView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) loginButton.getScene().getWindow();
+            stage.setTitle("Bank System Dashboard");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to open the Dashboard.");
+        }
     }
 
     @FXML
