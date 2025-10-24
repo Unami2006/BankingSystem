@@ -3,45 +3,29 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.collections.FXCollections?>
-<?import java.lang.String?>
 
 <GridPane xmlns:fx="http://javafx.com/fxml"
           fx:controller="com.example.BankSystem.AccountManagementController"
           alignment="CENTER" hgap="10" vgap="10">
 
-    <!-- Padding -->
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <!-- Title -->
-    <Label text="Account Management" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <Label text="Account Management" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3"
+           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
-    <!-- TableView for Accounts -->
-    <TableView fx:id="accountTable" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+    <TableView fx:id="accountTable" GridPane.columnSpan="3" GridPane.rowIndex="1">
         <columns>
             <TableColumn fx:id="accountIdColumn" text="Account ID"/>
             <TableColumn fx:id="accountNameColumn" text="Name"/>
-            <TableColumn fx:id="accountTypeColumn" text="Type"/>
             <TableColumn fx:id="accountBalanceColumn" text="Balance"/>
         </columns>
     </TableView>
 
-    <!-- Account Type ChoiceBox for adding new account -->
-    <Label text="Account Type:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
-    <ChoiceBox fx:id="accountTypeChoice" GridPane.columnIndex="1" GridPane.rowIndex="2">
-        <items>
-            <FXCollections fx:factory="observableArrayList">
-                <String fx:value="Saving"/>
-                <String fx:value="Cheque"/>
-                <String fx:value="Investment"/>
-            </FXCollections>
-        </items>
-    </ChoiceBox>
-
-    <!-- Buttons -->
-    <Button text="Add Account" fx:id="addAccountButton" GridPane.columnIndex="0" GridPane.rowIndex="3" prefWidth="150"/>
-    <Button text="Delete Account" fx:id="deleteAccountButton" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="150"/>
+    <Button text="Add Account" fx:id="addAccountButton" GridPane.columnIndex="0" GridPane.rowIndex="2" prefWidth="150"/>
+    <Button text="Delete Account" fx:id="deleteAccountButton" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="150"/>
+    <Button text="Deposit" fx:id="depositButton" GridPane.columnIndex="0" GridPane.rowIndex="3" prefWidth="150"/>
+    <Button text="Withdraw" fx:id="withdrawButton" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="150"/>
 
 </GridPane>

@@ -10,8 +10,8 @@ public class ChequeAccount extends Account implements Withdrawable {
 
     @Override
     public void withdraw(double amount) {
-        if (amount <= balance) {
-            balance -= amount;
+        if (amount <= getBalance()) {
+            setBalance(getBalance() - amount); // Use getter & setter
             System.out.println("Withdrawn: " + amount);
         } else {
             System.out.println("Insufficient funds!");
@@ -21,5 +21,8 @@ public class ChequeAccount extends Account implements Withdrawable {
     public String getEmployerName() {
         return employerName;
     }
-}
 
+    public void setEmployerName(String employerName) {
+        this.employerName = employerName;
+    }
+}

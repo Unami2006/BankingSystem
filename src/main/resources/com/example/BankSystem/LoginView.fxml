@@ -31,7 +31,7 @@
           GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
         <Button fx:id="loginButton" text="Login" onAction="#login"/>
         <Button fx:id="clearButton" text="Clear" onAction="#handleClear"/>
-        <Button fx:id="createAccountButton" text="Create Account" onAction="#handleCreateAccount"/>
+        <Button fx:id="registerButton" text="Register" onAction="#handleRegister"/>
     </HBox>
 
 </GridPane>

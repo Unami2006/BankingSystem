@@ -29,7 +29,8 @@ public class Customer {
     public void displayAccounts() {
         System.out.println(firstName + "'s Accounts:");
         for (Account a : accounts) {
-            System.out.println("- " + a.getAccountNumber() + " | Balance: " + a.getBalance());
+            System.out.println("- " + a.getAccountId()
+                    + " | Balance: " + a.getBalance());
         }
     }
 }
