@@ -1,0 +1,2 @@
+A1,Money,3912.0,Savings
+A2,Shoes,145.0,Investment

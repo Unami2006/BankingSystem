@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<GridPane xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.example.BankSystem.RegisterController"
+          alignment="CENTER" hgap="10" vgap="10">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="User Registration" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Label text="Full Name:" GridPane.rowIndex="1"/>
+    <TextField fx:id="nameField" promptText="Enter full name" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+    <Label text="Username:" GridPane.rowIndex="2"/>
+    <TextField fx:id="usernameField" promptText="Enter username" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+    <Label text="Password:" GridPane.rowIndex="3"/>
+    <PasswordField fx:id="passwordField" promptText="Enter password" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+    <Label text="Email:" GridPane.rowIndex="4"/>
+    <TextField fx:id="emailField" promptText="Enter email" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+    <Label text="Account Type:" GridPane.rowIndex="5"/>
+    <ChoiceBox fx:id="accountTypeChoice" GridPane.columnIndex="1" GridPane.rowIndex="5">
+        <items>
+            <FXCollections fx:factory="observableArrayList">
+                <String fx:value="Savings"/>
+                <String fx:value="Cheque"/>
+                <String fx:value="Investment"/>
+            </FXCollections>
+        </items>
+    </ChoiceBox>
+
+    <Button text="Register" onAction="#handleRegister"
+            GridPane.columnSpan="2" GridPane.rowIndex="6" GridPane.halignment="CENTER" prefWidth="150"/>
+
+</GridPane>
