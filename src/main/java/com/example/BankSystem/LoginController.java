@@ -39,11 +39,34 @@ public class LoginController {
             return;
         }
 
-        // Simple login validation (you can connect this to real data later)
-        if (username.equals("admin") && password.equals("1234")) {
-            openDashboard();
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
+        try {
+            java.io.File file = new java.io.File("users.txt");
+            if (!file.exists()) {
+                showAlert(Alert.AlertType.ERROR, "Login Failed", "No registered users found.");
+                return;
+            }
+
+            java.util.Scanner scanner = new java.util.Scanner(file);
+            boolean found = false;
+
+            while (scanner.hasNextLine()) {
+                String[] parts = scanner.nextLine().split(",");
+                if (parts.length >= 2 && parts[0].equals(username) && parts[1].equals(password)) {
+                    found = true;
+                    break;
+                }
+            }
+            scanner.close();
+
+            if (found) {
+                openDashboard();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while logging in.");
         }
     }
 

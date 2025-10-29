@@ -2,58 +2,69 @@ package com.example.BankSystem;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import java.io.*;
 
 public class CustomerController {
 
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
     @FXML private TextField nameField;
-    @FXML private TextField idField;
-    @FXML private TextField emailField;
-    @FXML private TextField phoneField;
-    @FXML private TextField addressField;
-    @FXML private ChoiceBox<String> typeChoice;
+
+    private static final String FILE_PATH = "customers.txt";
 
     @FXML
     private void saveCustomer() {
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
         String name = nameField.getText().trim();
-        String id = idField.getText().trim();
-        String email = emailField.getText().trim();
-        String phone = phoneField.getText().trim();
-        String address = addressField.getText().trim();
-        String type = typeChoice.getValue();
 
-        if (name.isEmpty() || id.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty() || type == null) {
-            showAlert(Alert.AlertType.WARNING, "Missing Fields", "Please fill out all fields before saving.");
+        if (username.isEmpty() || password.isEmpty() || name.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Missing Fields", "Please fill in all fields.");
             return;
         }
 
-        String message = String.format("""
-                Customer Registered Successfully:
-                Type: %s
-                Name: %s
-                ID/Passport: %s
-                Email: %s
-                Phone: %s
-                Address: %s
-                """, type, name, id, email, phone, address);
+        if (isUsernameTaken(username)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Username already exists.");
+            return;
+        }
 
-        showAlert(Alert.AlertType.INFORMATION, "Registration Complete", message);
-        clearFields();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+            writer.write(username + "," + password + "," + name);
+            writer.newLine();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer saved successfully!");
+            clearFields();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not save customer data.");
+        }
     }
 
-    private void clearFields() {
-        nameField.clear();
-        idField.clear();
-        emailField.clear();
-        phoneField.clear();
-        addressField.clear();
-        typeChoice.setValue(null);
+    private boolean isUsernameTaken(String username) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length > 0 && parts[0].equals(username)) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            // File may not exist yet
+        }
+        return false;
     }
 
-    private void showAlert(Alert.AlertType type, String title, String msg) {
+    private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText(msg);
+        alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void clearFields() {
+        usernameField.clear();
+        passwordField.clear();
+        nameField.clear();
     }
 }
