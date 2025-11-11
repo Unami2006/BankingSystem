@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 
 import java.io.*;
@@ -15,6 +16,8 @@ public class AccountManagementController {
     @FXML private TableColumn<Account, String> accountIdColumn;
     @FXML private TableColumn<Account, String> accountNameColumn;
     @FXML private TableColumn<Account, Double> accountBalanceColumn;
+    @FXML private TableColumn<Account, String> accountTypeColumn;
+
     @FXML private Button addAccountButton;
     @FXML private Button deleteAccountButton;
     @FXML private Button depositButton;
@@ -25,13 +28,36 @@ public class AccountManagementController {
 
     @FXML
     private void initialize() {
+        // Bind table columns
         accountIdColumn.setCellValueFactory(cellData -> cellData.getValue().accountIdProperty());
         accountNameColumn.setCellValueFactory(cellData -> cellData.getValue().accountNameProperty());
         accountBalanceColumn.setCellValueFactory(cellData -> cellData.getValue().balanceProperty().asObject());
+        accountTypeColumn.setCellValueFactory(cellData -> cellData.getValue().accountTypeProperty());
+
+        // Add color coding for account type
+        accountTypeColumn.setCellFactory(column -> new TableCell<Account, String>() {
+            @Override
+            protected void updateItem(String type, boolean empty) {
+                super.updateItem(type, empty);
+                if (empty || type == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(type);
+                    switch (type.toLowerCase()) {
+                        case "savings" -> setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+                        case "cheque" -> setStyle("-fx-text-fill: blue; -fx-font-weight: bold;");
+                        case "investment" -> setStyle("-fx-text-fill: orange; -fx-font-weight: bold;");
+                        default -> setStyle("-fx-text-fill: black;");
+                    }
+                }
+            }
+        });
 
         loadAccountsFromFile();
         accountTable.setItems(accounts);
 
+        // Button actions
         addAccountButton.setOnAction(e -> showAddAccountForm());
         deleteAccountButton.setOnAction(e -> deleteSelectedAccount());
         depositButton.setOnAction(e -> handleDeposit());

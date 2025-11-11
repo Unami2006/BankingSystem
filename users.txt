@@ -1,1 +1,4 @@
 Unami,12345,Nyasha,nyauzuva@gmail.com,Savings
+Maatla,admin123,Maatla,maatla@gmail.com,Cheque
+Nyasha,1234,Nyasha,nyau@gmail.com,Cheque
+Timothy,12345,Kaelo,timothy@gmail.com,Savings

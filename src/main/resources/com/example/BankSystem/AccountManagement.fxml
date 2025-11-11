@@ -17,9 +17,10 @@
 
     <TableView fx:id="accountTable" GridPane.columnSpan="3" GridPane.rowIndex="1">
         <columns>
-            <TableColumn fx:id="accountIdColumn" text="Account ID"/>
-            <TableColumn fx:id="accountNameColumn" text="Name"/>
-            <TableColumn fx:id="accountBalanceColumn" text="Balance"/>
+            <TableColumn fx:id="accountIdColumn" text="Account ID" prefWidth="100"/>
+            <TableColumn fx:id="accountNameColumn" text="Name" prefWidth="150"/>
+            <TableColumn fx:id="accountBalanceColumn" text="Balance" prefWidth="100"/>
+            <TableColumn fx:id="accountTypeColumn" text="Account Type" prefWidth="150"/>
         </columns>
     </TableView>
 

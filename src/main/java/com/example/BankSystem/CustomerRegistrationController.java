@@ -1,95 +1,83 @@
 package com.example.BankSystem;
 
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.stage.Stage;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class CustomerRegistrationController {
 
-    @FXML
-    private TextField fullNameField;
-    @FXML
-    private TextField emailField;
-    @FXML
-    private TextField phoneField;
-    @FXML
-    private TextField addressField;
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private PasswordField passwordField;
-    @FXML
-    private PasswordField confirmPasswordField;
-    @FXML
-    private Button registerButton;
-    @FXML
-    private Button cancelButton;
+    @FXML private TextField nameField;
+    @FXML private TextField emailField;
+    @FXML private TextField phoneField;
+    @FXML private TextField addressField;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+
+    private static final String FILE_PATH = "registered.txt";
 
     @FXML
-    private void handleRegister() {
-        String fullName = fullNameField.getText().trim();
+    private void saveCustomer() {
+        String name = nameField.getText().trim();
         String email = emailField.getText().trim();
         String phone = phoneField.getText().trim();
         String address = addressField.getText().trim();
         String username = usernameField.getText().trim();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
+        String password = passwordField.getText().trim();
 
-        // Validate inputs
-        if (fullName.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty()
-                || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            showAlert(AlertType.ERROR, "Error", "Please fill in all fields.");
+        // Check if fields are empty
+        if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || address.isEmpty()
+                || username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Missing Fields", "Please fill in all fields.");
             return;
         }
 
-        if (!password.equals(confirmPassword)) {
-            showAlert(AlertType.ERROR, "Error", "Passwords do not match.");
+        // Prevent duplicate username
+        if (isUsernameTaken(username)) {
+            showAlert(Alert.AlertType.ERROR, "Duplicate Username", "This username already exists.");
             return;
         }
 
-        // Save customer data
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("customers.txt", true))) {
-            writer.write(fullName + "," + email + "," + phone + "," + address + "," + username + "," + password);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+            writer.write(name + "," + email + "," + phone + "," + address + "," + username + "," + password);
             writer.newLine();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Customer registered successfully!");
+            clearFields();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert(AlertType.ERROR, "Error", "Failed to save customer data.");
-            return;
-        }
-
-        showAlert(AlertType.INFORMATION, "Success", "Customer registered successfully!");
-
-        // Open Dashboard
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Dashboard.fxml"));
-            Stage stage = (Stage) registerButton.getScene().getWindow(); // current window
-            stage.setScene(new Scene(loader.load()));
-            stage.setTitle("Dashboard");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert(AlertType.ERROR, "Error", "Failed to open Dashboard.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not save customer data.");
         }
     }
 
-    @FXML
-    private void handleCancel() {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
+    private boolean isUsernameTaken(String username) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length > 4 && parts[4].equals(username)) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            // File may not exist yet — ignore
+        }
+        return false;
     }
 
-    private void showAlert(AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void clearFields() {
+        nameField.clear();
+        emailField.clear();
+        phoneField.clear();
+        addressField.clear();
+        usernameField.clear();
+        passwordField.clear();
     }
 }
