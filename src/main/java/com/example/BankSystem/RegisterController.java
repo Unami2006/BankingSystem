@@ -1,11 +1,17 @@
 package com.example.BankSystem;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class RegisterController {
 
@@ -14,14 +20,11 @@ public class RegisterController {
     @FXML private PasswordField passwordField;
     @FXML private TextField emailField;
     @FXML private ChoiceBox<String> accountTypeChoice;
+    @FXML private Label messageLabel;
 
+    // ✅ Handle Registration Button
     @FXML
-    private void initialize() {
-        accountTypeChoice.getItems().addAll("Savings", "Cheque", "Investment");
-    }
-
-    @FXML
-    private void handleRegister() {
+    private void handleRegister(ActionEvent event) {
         String name = nameField.getText().trim();
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
@@ -29,64 +32,53 @@ public class RegisterController {
         String accountType = accountTypeChoice.getValue();
 
         if (name.isEmpty() || username.isEmpty() || password.isEmpty() || email.isEmpty() || accountType == null) {
-            showAlert(Alert.AlertType.WARNING, "Missing Fields", "Please fill in all fields.");
+            messageLabel.setText("Please fill in all fields!");
             return;
         }
 
-        try {
-            java.io.File file = new java.io.File("users.txt");
-            if (!file.exists()) file.createNewFile();
+        // Insert user into database
+        String sql = "INSERT INTO users (name, username, password, email, account_type) VALUES (?, ?, ?, ?, ?)";
 
-            // Check if username already exists
-            java.util.Scanner scanner = new java.util.Scanner(file);
-            while (scanner.hasNextLine()) {
-                String[] parts = scanner.nextLine().split(",");
-                if (parts.length > 1 && parts[0].equalsIgnoreCase(username)) {
-                    showAlert(Alert.AlertType.ERROR, "Registration Failed", "Username already exists.");
-                    scanner.close();
-                    return;
-                }
-            }
-            scanner.close();
+        try (Connection conn = DatabaseConnection.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // Save new user
-            java.io.FileWriter writer = new java.io.FileWriter(file, true);
-            writer.write(username + "," + password + "," + name + "," + email + "," + accountType + "\n");
-            writer.close();
+            pstmt.setString(1, name);
+            pstmt.setString(2, username);
+            pstmt.setString(3, password);
+            pstmt.setString(4, email);
+            pstmt.setString(5, accountType);
 
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Account successfully created for " + name);
+            pstmt.executeUpdate();
+            messageLabel.setStyle("-fx-text-fill: green;");
+            messageLabel.setText("Registration successful!");
 
-            // Close current stage after registration
-            closeStage();
+            // Clear fields
+            nameField.clear();
+            usernameField.clear();
+            passwordField.clear();
+            emailField.clear();
+            accountTypeChoice.setValue(null);
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            messageLabel.setStyle("-fx-text-fill: red;");
+            messageLabel.setText("Error: " + e.getMessage());
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Could not save user data.");
         }
     }
 
+    // ✅ Handle Back to Login Button
     @FXML
-    private void handleBackToLogin() {
+    private void handleBackToLogin(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("LoginView.fxml"));
-            Stage stage = (Stage) nameField.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/LoginView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.setTitle("Banking System - Login");
             stage.show();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void closeStage() {
-        Stage stage = (Stage) nameField.getScene().getWindow();
-        stage.close();
-    }
-
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

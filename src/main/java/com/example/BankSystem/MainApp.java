@@ -10,7 +10,9 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // ✅ Correct absolute path to your FXML
+        // ✅ Ensure database tables exist before UI loads
+        DatabaseSetup.initialize();
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/LoginView.fxml"));
         Parent root = loader.load();
 

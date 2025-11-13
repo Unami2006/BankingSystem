@@ -7,9 +7,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 
-import java.io.*;
-import java.util.Scanner;
-
 public class AccountManagementController {
 
     @FXML private TableView<Account> accountTable;
@@ -22,20 +19,19 @@ public class AccountManagementController {
     @FXML private Button deleteAccountButton;
     @FXML private Button depositButton;
     @FXML private Button withdrawButton;
+    @FXML private Button applyInterestButton;
 
-    private final String FILE_NAME = "accounts.txt";
     private final ObservableList<Account> accounts = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
-        // Bind table columns
         accountIdColumn.setCellValueFactory(cellData -> cellData.getValue().accountIdProperty());
         accountNameColumn.setCellValueFactory(cellData -> cellData.getValue().accountNameProperty());
         accountBalanceColumn.setCellValueFactory(cellData -> cellData.getValue().balanceProperty().asObject());
         accountTypeColumn.setCellValueFactory(cellData -> cellData.getValue().accountTypeProperty());
 
-        // Add color coding for account type
-        accountTypeColumn.setCellFactory(column -> new TableCell<Account, String>() {
+        // Color styling by account type
+        accountTypeColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String type, boolean empty) {
                 super.updateItem(type, empty);
@@ -54,42 +50,18 @@ public class AccountManagementController {
             }
         });
 
-        loadAccountsFromFile();
-        accountTable.setItems(accounts);
+        loadAccounts();
 
-        // Button actions
         addAccountButton.setOnAction(e -> showAddAccountForm());
         deleteAccountButton.setOnAction(e -> deleteSelectedAccount());
         depositButton.setOnAction(e -> handleDeposit());
         withdrawButton.setOnAction(e -> handleWithdraw());
+        applyInterestButton.setOnAction(e -> handleApplyInterest());
     }
 
-    private void loadAccountsFromFile() {
-        accounts.clear();
-        File file = new File(FILE_NAME);
-        if (!file.exists()) return;
-
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                String[] parts = scanner.nextLine().split(",");
-                if (parts.length == 4) {
-                    accounts.add(new Account(parts[0], parts[1], Double.parseDouble(parts[2]), parts[3]));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveAccountsToFile() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_NAME))) {
-            for (Account account : accounts) {
-                writer.println(account.getAccountId() + "," + account.getAccountName() + "," +
-                        account.getBalance() + "," + account.getAccountType());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void loadAccounts() {
+        accounts.setAll(AccountDAO.loadAccounts());
+        accountTable.setItems(accounts);
     }
 
     private void showAddAccountForm() {
@@ -120,7 +92,7 @@ public class AccountManagementController {
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
                 try {
-                    String id = "A" + (accounts.size() + 1);
+                    String id = "A" + System.currentTimeMillis();
                     String name = nameField.getText().trim();
                     String type = typeChoice.getValue();
                     double balance = Double.parseDouble(balanceField.getText());
@@ -133,16 +105,16 @@ public class AccountManagementController {
         });
 
         dialog.showAndWait().ifPresent(account -> {
-            accounts.add(account);
-            saveAccountsToFile();
+            AccountDAO.saveAccount(account);
+            loadAccounts();
         });
     }
 
     private void deleteSelectedAccount() {
         Account selected = accountTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            accounts.remove(selected);
-            saveAccountsToFile();
+            AccountDAO.deleteAccount(selected.getAccountId());
+            loadAccounts();
         } else {
             showAlert("No Selection", "Please select an account to delete.");
         }
@@ -165,8 +137,8 @@ public class AccountManagementController {
                 double amount = Double.parseDouble(amountStr);
                 if (amount > 0) {
                     selected.setBalance(selected.getBalance() + amount);
-                    accountTable.refresh();
-                    saveAccountsToFile();
+                    AccountDAO.saveAccount(selected);
+                    loadAccounts();
                 } else {
                     showAlert("Invalid Amount", "Amount must be positive.");
                 }
@@ -183,8 +155,8 @@ public class AccountManagementController {
             return;
         }
 
-        String type = selected.getAccountType();
-        if (!type.equalsIgnoreCase("Cheque") && !type.equalsIgnoreCase("Investment")) {
+        if (!selected.getAccountType().equalsIgnoreCase("Cheque") &&
+                !selected.getAccountType().equalsIgnoreCase("Investment")) {
             showAlert("Not Allowed", "Withdrawals are only allowed for Cheque and Investment accounts.");
             return;
         }
@@ -199,8 +171,8 @@ public class AccountManagementController {
                 double amount = Double.parseDouble(amountStr);
                 if (amount > 0 && amount <= selected.getBalance()) {
                     selected.setBalance(selected.getBalance() - amount);
-                    accountTable.refresh();
-                    saveAccountsToFile();
+                    AccountDAO.saveAccount(selected);
+                    loadAccounts();
                 } else {
                     showAlert("Invalid Amount", "Amount must be positive and not exceed balance.");
                 }
@@ -208,6 +180,26 @@ public class AccountManagementController {
                 showAlert("Error", "Invalid amount entered.");
             }
         });
+    }
+
+    private void handleApplyInterest() {
+        boolean anyUpdated = false;
+        for (Account acc : accounts) {
+            if (acc.getAccountType().equalsIgnoreCase("Investment")) {
+                double oldBalance = acc.getBalance();
+                double interest = oldBalance * 0.05;
+                acc.setBalance(oldBalance + interest);
+                AccountDAO.saveAccount(acc);
+                anyUpdated = true;
+            }
+        }
+
+        if (anyUpdated) {
+            loadAccounts();
+            showAlert("Success", "Interest applied to all Investment Accounts (5%).");
+        } else {
+            showAlert("Info", "No Investment Accounts found.");
+        }
     }
 
     private void showAlert(String title, String message) {

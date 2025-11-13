@@ -12,21 +12,26 @@
         <Insets top="20" right="20" bottom="20" left="20"/>
     </padding>
 
-    <Label text="Account Management" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3"
-           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+    <Label text="Account Management"
+           style="-fx-font-size: 18px; -fx-font-weight: bold;"
+           GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="3"/>
 
-    <TableView fx:id="accountTable" GridPane.columnSpan="3" GridPane.rowIndex="1">
+    <TableView fx:id="accountTable" GridPane.columnSpan="3" GridPane.rowIndex="1" prefHeight="300">
         <columns>
             <TableColumn fx:id="accountIdColumn" text="Account ID" prefWidth="100"/>
             <TableColumn fx:id="accountNameColumn" text="Name" prefWidth="150"/>
-            <TableColumn fx:id="accountBalanceColumn" text="Balance" prefWidth="100"/>
-            <TableColumn fx:id="accountTypeColumn" text="Account Type" prefWidth="150"/>
+            <TableColumn fx:id="accountBalanceColumn" text="Balance" prefWidth="120"/>
+            <TableColumn fx:id="accountTypeColumn" text="Type" prefWidth="120"/>
         </columns>
     </TableView>
 
-    <Button text="Add Account" fx:id="addAccountButton" GridPane.columnIndex="0" GridPane.rowIndex="2" prefWidth="150"/>
-    <Button text="Delete Account" fx:id="deleteAccountButton" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="150"/>
-    <Button text="Deposit" fx:id="depositButton" GridPane.columnIndex="0" GridPane.rowIndex="3" prefWidth="150"/>
-    <Button text="Withdraw" fx:id="withdrawButton" GridPane.columnIndex="1" GridPane.rowIndex="3" prefWidth="150"/>
+    <HBox spacing="10" alignment="CENTER" GridPane.columnSpan="3" GridPane.rowIndex="2">
+        <Button fx:id="addAccountButton" text="Add Account" prefWidth="120"/>
+        <Button fx:id="deleteAccountButton" text="Delete" prefWidth="120"/>
+        <Button fx:id="depositButton" text="Deposit" prefWidth="120"/>
+        <Button fx:id="withdrawButton" text="Withdraw" prefWidth="120"/>
+        <!-- ✅ New button -->
+        <Button fx:id="applyInterestButton" text="Apply Interest" prefWidth="150"/>
+    </HBox>
 
 </GridPane>
