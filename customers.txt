@@ -1,0 +1,2 @@
+Nyasha,123456,nya@gmail.com,78921090,riverspray,Individual
+Nyasha,2345,nyasha@gmail.com,457892,nya@gmail.com,Company
