@@ -10,12 +10,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane alignment="CENTER" hgap="10" style="-fx-background-color: #b399ff;" vgap="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.example.BankSystem.LoginController">
+<GridPane alignment="CENTER" hgap="10" prefHeight="239.0" prefWidth="287.0" style="-fx-background-color: #b399ff;" vgap="10" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.example.BankSystem.LoginController">
     <padding>
         <Insets bottom="20" left="20" right="20" top="20" />
     </padding>
 
-    <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Bank System Login" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0" />
+    <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="🏦 Bank System Login" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0" />
 
     <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
     <TextField fx:id="usernameField" promptText="Enter username" GridPane.columnIndex="1" GridPane.rowIndex="1" />
