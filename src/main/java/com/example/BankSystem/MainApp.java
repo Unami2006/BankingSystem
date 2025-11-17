@@ -10,14 +10,14 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // ✅ Ensure database tables exist before UI loads
+        // Initialize DB (creates tables if missing)
         DatabaseSetup.initialize();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/LoginView.fxml"));
         Parent root = loader.load();
 
         primaryStage.setTitle("Banking System - Login");
-        primaryStage.setScene(new Scene(root, 420, 260));
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }
 

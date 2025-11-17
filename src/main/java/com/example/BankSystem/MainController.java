@@ -6,56 +6,79 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 public class MainController {
 
+    private int loggedUserId;
+    private String loggedUserName;
+
+    public void setUser(int userId, String name) {
+        this.loggedUserId = userId;
+        this.loggedUserName = name;
+    }
+
+    // Open Customer Registration Window
     @FXML
     private void openCustomerView() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/CustomerView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/CustomerRegistration.fxml"));
             Parent root = loader.load();
+
+            // Optionally pass logged-in user ID if needed
+            CustomerRegistrationController controller = loader.getController();
+            // controller.setUserId(String.valueOf(loggedUserId)); // Uncomment if you want to use user ID
 
             Stage stage = new Stage();
             stage.setTitle("Customer Registration");
-            stage.setScene(new Scene(root));
+            stage.setScene(new Scene(root, 500, 500)); // Set preferred size
             stage.show();
-        } catch (IOException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @FXML
     private void openAccountView() {
-        openWindow("/com/example/BankSystem/AccountManagement.fxml", "Account Management");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/AccountManagement.fxml"));
+            Parent root = loader.load();
+
+            AccountManagementController controller = loader.getController();
+            controller.setUserId(String.valueOf(loggedUserId));
+
+            Stage stage = new Stage();
+            stage.setTitle("Account Management");
+            stage.setScene(new Scene(root, 600, 400));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void openTransactionView() {
-        openWindow("/com/example/BankSystem/TransactionView.fxml", "Transactions");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/BankSystem/TransactionView.fxml"));
+            Parent root = loader.load();
+
+            TransactionViewController controller = loader.getController();
+            controller.setUserId(String.valueOf(loggedUserId));
+
+            Stage stage = new Stage();
+            stage.setTitle("Transaction History");
+            stage.setScene(new Scene(root, 600, 400));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void logout() {
-        // For now, just close the dashboard
-        Stage stage = (Stage) javafx.stage.Stage.getWindows().filtered(Window -> Window.isShowing()).get(0);
+        // Close current window and return to login
+        Stage stage = (Stage) Stage.getWindows().filtered(Window -> Window.isShowing()).get(0);
         stage.close();
-    }
-
-    /**
-     * Utility method to open a new window given an FXML path and title
-     */
-    private void openWindow(String fxmlPath, String title) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle(title);
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

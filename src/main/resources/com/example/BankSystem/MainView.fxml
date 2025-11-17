@@ -6,32 +6,51 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.BankSystem.MainController"
-            prefWidth="600" prefHeight="400">
+            prefWidth="700" prefHeight="480">
 
-    <!-- Top: Menu Bar -->
+    <!-- ============================
+            TOP MENU BAR
+    ============================= -->
     <top>
         <MenuBar>
+
             <Menu text="Customer">
-                <MenuItem text="Register New Customer" onAction="#openCustomerView"/>
+                <MenuItem text="Register New Customer"
+                          onAction="#openCustomerView"/>
             </Menu>
+
             <Menu text="Account">
-                <MenuItem text="Manage Accounts" onAction="#openAccountView"/>
+                <MenuItem text="Manage Accounts"
+                          onAction="#openAccountView"/>
             </Menu>
+
             <Menu text="Transactions">
-                <MenuItem text="Deposit / Withdraw" onAction="#openTransactionView"/>
+                <MenuItem text="Deposit / Withdraw"
+                          onAction="#openTransactionView"/>
             </Menu>
+
             <Menu text="Logout">
-                <MenuItem text="Logout" onAction="#logout"/>
+                <MenuItem text="Logout"
+                          onAction="#logout"/>
             </Menu>
+
         </MenuBar>
     </top>
 
-    <!-- Center: Welcome message -->
+    <!-- ============================
+             CENTER CONTENT
+    ============================= -->
     <center>
-        <VBox alignment="CENTER" spacing="20">
+        <VBox spacing="20"
+              alignment="CENTER"
+              style="-fx-padding: 40;">
+
             <Label text="Welcome to the Banking System Dashboard"
-                   style="-fx-font-size: 18; -fx-font-weight: bold;"/>
-            <Label text="Use the menu above to navigate through system features."/>
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+            <Label text="Use the menu above to navigate through available features."
+                   style="-fx-font-size: 14px;"/>
+
         </VBox>
     </center>
 

@@ -9,7 +9,7 @@ public class DatabaseSetup {
         try (Connection conn = DatabaseConnection.connect();
              Statement stmt = conn.createStatement()) {
 
-            // Users table
+            // Users table (FINAL)
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,34 +17,37 @@ public class DatabaseSetup {
                     username TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
                     email TEXT NOT NULL,
-                    account_type TEXT NOT NULL
+                    account_type TEXT
                 )
             """);
 
-            // Accounts table
+            // Accounts table (FINAL)
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS accounts (
                     accountId TEXT PRIMARY KEY,
                     accountName TEXT NOT NULL,
                     balance REAL NOT NULL,
-                    accountType TEXT NOT NULL
+                    accountType TEXT NOT NULL,
+                    userId TEXT NOT NULL
                 )
             """);
 
-            // Transactions table (correct schema)
+            // Transactions table (FINAL FIX — TEXT transactionId)
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS transactions (
-                    transactionId INTEGER PRIMARY KEY AUTOINCREMENT,
-                    accountId TEXT,
-                    type TEXT,
-                    amount REAL,
-                    targetAccount TEXT,
+                    transactionId TEXT PRIMARY KEY,
+                    accountId TEXT NOT NULL,
+                    type TEXT NOT NULL,
+                    amount REAL NOT NULL,
                     description TEXT,
+                    targetAccount TEXT,
+                    userId TEXT NOT NULL,
                     timestamp TEXT
                 )
             """);
 
-            System.out.println("✅ Database tables created or verified.");
+            System.out.println("✅ Database tables created or verified (correct schema).");
+
         } catch (Exception e) {
             System.out.println("❌ Error creating tables: " + e.getMessage());
         }

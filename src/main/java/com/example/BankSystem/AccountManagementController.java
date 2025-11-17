@@ -1,11 +1,9 @@
 package com.example.BankSystem;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.geometry.Insets;
 
 public class AccountManagementController {
 
@@ -21,84 +19,84 @@ public class AccountManagementController {
     @FXML private Button withdrawButton;
     @FXML private Button applyInterestButton;
 
-    private final ObservableList<Account> accounts = FXCollections.observableArrayList();
+    private String userId;
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+        loadAccounts();
+    }
 
     @FXML
-    private void initialize() {
-        accountIdColumn.setCellValueFactory(cellData -> cellData.getValue().accountIdProperty());
-        accountNameColumn.setCellValueFactory(cellData -> cellData.getValue().accountNameProperty());
-        accountBalanceColumn.setCellValueFactory(cellData -> cellData.getValue().balanceProperty().asObject());
-        accountTypeColumn.setCellValueFactory(cellData -> cellData.getValue().accountTypeProperty());
+    public void initialize() {
+        accountIdColumn.setCellValueFactory(cell -> cell.getValue().accountIdProperty());
+        accountNameColumn.setCellValueFactory(cell -> cell.getValue().accountNameProperty());
+        accountBalanceColumn.setCellValueFactory(cell -> cell.getValue().balanceProperty().asObject());
+        accountTypeColumn.setCellValueFactory(cell -> cell.getValue().accountTypeProperty());
 
-        // Color styling by account type
-        accountTypeColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(String type, boolean empty) {
-                super.updateItem(type, empty);
-                if (empty || type == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(type);
-                    switch (type.toLowerCase()) {
-                        case "savings" -> setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
-                        case "cheque" -> setStyle("-fx-text-fill: blue; -fx-font-weight: bold;");
-                        case "investment" -> setStyle("-fx-text-fill: orange; -fx-font-weight: bold;");
-                        default -> setStyle("-fx-text-fill: black;");
-                    }
-                }
-            }
-        });
-
-        loadAccounts();
-
-        addAccountButton.setOnAction(e -> showAddAccountForm());
-        deleteAccountButton.setOnAction(e -> deleteSelectedAccount());
-        depositButton.setOnAction(e -> handleDeposit());
-        withdrawButton.setOnAction(e -> handleWithdraw());
-        applyInterestButton.setOnAction(e -> handleApplyInterest());
+        addAccountButton.setOnAction(e -> addAccount());
+        deleteAccountButton.setOnAction(e -> deleteAccount());
+        depositButton.setOnAction(e -> deposit());
+        withdrawButton.setOnAction(e -> withdraw());
+        applyInterestButton.setOnAction(e -> applyInterest());
     }
 
     private void loadAccounts() {
-        accounts.setAll(AccountDAO.loadAccounts());
-        accountTable.setItems(accounts);
+        accountTable.getItems().setAll(AccountDAO.loadAccountsForUser(userId));
     }
 
-    private void showAddAccountForm() {
+    // ----------------------- ADD ACCOUNT ----------------------------
+    private void addAccount() {
+
         Dialog<Account> dialog = new Dialog<>();
-        dialog.setTitle("Add New Account");
-        dialog.setHeaderText("Enter Account Details");
+        dialog.setTitle("Add Account");
 
         Label nameLabel = new Label("Account Name:");
         TextField nameField = new TextField();
 
-        Label typeLabel = new Label("Account Type:");
-        ChoiceBox<String> typeChoice = new ChoiceBox<>();
-        typeChoice.getItems().addAll("Savings", "Cheque", "Investment");
+        Label typeLabel = new Label("Type:");
+        ComboBox<String> typeCombo = new ComboBox<>();
+        typeCombo.getItems().addAll("Savings", "Investment", "Cheque");
+        typeCombo.setValue("Savings");
 
         Label balanceLabel = new Label("Initial Balance:");
         TextField balanceField = new TextField();
 
+        // Layout
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
-        grid.addRow(0, nameLabel, nameField);
-        grid.addRow(1, typeLabel, typeChoice);
-        grid.addRow(2, balanceLabel, balanceField);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(nameLabel, 0, 0);
+        grid.add(nameField, 1, 0);
+        grid.add(typeLabel, 0, 1);
+        grid.add(typeCombo, 1, 1);
+        grid.add(balanceLabel, 0, 2);
+        grid.add(balanceField, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
+        dialog.setResultConverter(button -> {
+            if (button == ButtonType.OK) {
                 try {
-                    String id = "A" + System.currentTimeMillis();
-                    String name = nameField.getText().trim();
-                    String type = typeChoice.getValue();
+                    String name = nameField.getText();
+                    String type = typeCombo.getValue();
                     double balance = Double.parseDouble(balanceField.getText());
-                    return new Account(id, name, balance, type);
+                    String id = AccountDAO.generateAccountId();
+
+                    switch (type) {
+                        case "Savings":
+                            return new SavingsAccount(id, name, balance, userId);
+                        case "Investment":
+                            return new InvestmentAccount(id, name, balance, userId);
+                        case "Cheque":
+                            return new ChequeAccount(id, name, balance, userId, "None"); // Default
+                    }
+
                 } catch (Exception e) {
-                    showAlert("Error", "Invalid input. Please try again.");
+                    e.printStackTrace();
+                    return null;
                 }
             }
             return null;
@@ -110,103 +108,88 @@ public class AccountManagementController {
         });
     }
 
-    private void deleteSelectedAccount() {
+    // ----------------------- DELETE ACCOUNT ----------------------------
+    private void deleteAccount() {
         Account selected = accountTable.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            AccountDAO.deleteAccount(selected.getAccountId());
-            loadAccounts();
-        } else {
-            showAlert("No Selection", "Please select an account to delete.");
-        }
+        if (selected == null) return;
+
+        AccountDAO.deleteAccount(selected.getAccountId());
+        loadAccounts();
     }
 
-    private void handleDeposit() {
+    // ----------------------- DEPOSIT ----------------------------
+    private void deposit() {
         Account selected = accountTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showAlert("No Selection", "Please select an account to deposit into.");
-            return;
-        }
+        if (selected == null) return;
 
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Deposit");
-        dialog.setHeaderText("Deposit into " + selected.getAccountName());
-        dialog.setContentText("Enter amount to deposit:");
+        dialog.setHeaderText("Enter deposit amount:");
 
         dialog.showAndWait().ifPresent(amountStr -> {
             try {
                 double amount = Double.parseDouble(amountStr);
-                if (amount > 0) {
-                    selected.setBalance(selected.getBalance() + amount);
-                    AccountDAO.saveAccount(selected);
-                    loadAccounts();
-                } else {
-                    showAlert("Invalid Amount", "Amount must be positive.");
-                }
-            } catch (NumberFormatException e) {
-                showAlert("Error", "Invalid amount entered.");
-            }
+                TransactionController.deposit(selected, amount, userId);
+                loadAccounts();
+            } catch (Exception ignored) {}
         });
     }
 
-    private void handleWithdraw() {
+    // ----------------------- WITHDRAW ----------------------------
+    private void withdraw() {
         Account selected = accountTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showAlert("No Selection", "Please select an account to withdraw from.");
-            return;
-        }
-
-        if (!selected.getAccountType().equalsIgnoreCase("Cheque") &&
-                !selected.getAccountType().equalsIgnoreCase("Investment")) {
-            showAlert("Not Allowed", "Withdrawals are only allowed for Cheque and Investment accounts.");
-            return;
-        }
+        if (selected == null) return;
 
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Withdraw");
-        dialog.setHeaderText("Withdraw from " + selected.getAccountName());
-        dialog.setContentText("Enter amount to withdraw:");
+        dialog.setHeaderText("Enter withdrawal amount:");
 
         dialog.showAndWait().ifPresent(amountStr -> {
             try {
                 double amount = Double.parseDouble(amountStr);
-                if (amount > 0 && amount <= selected.getBalance()) {
-                    selected.setBalance(selected.getBalance() - amount);
-                    AccountDAO.saveAccount(selected);
-                    loadAccounts();
-                } else {
-                    showAlert("Invalid Amount", "Amount must be positive and not exceed balance.");
+
+                if (!TransactionController.withdraw(selected, amount, userId)) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Insufficient funds!");
+                    alert.show();
                 }
-            } catch (NumberFormatException e) {
-                showAlert("Error", "Invalid amount entered.");
-            }
+
+                loadAccounts();
+
+            } catch (Exception ignored) {}
         });
     }
 
-    private void handleApplyInterest() {
-        boolean anyUpdated = false;
-        for (Account acc : accounts) {
-            if (acc.getAccountType().equalsIgnoreCase("Investment")) {
-                double oldBalance = acc.getBalance();
-                double interest = oldBalance * 0.05;
-                acc.setBalance(oldBalance + interest);
-                AccountDAO.saveAccount(acc);
-                anyUpdated = true;
-            }
+    // ----------------------- APPLY INTEREST ----------------------------
+    private void applyInterest() {
+        Account selected = accountTable.getSelectionModel().getSelectedItem();
+        if (selected == null) return;
+
+        if (!selected.getAccountType().equalsIgnoreCase("Investment")) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                    "Interest applies to Investment accounts only.");
+            alert.show();
+            return;
         }
 
-        if (anyUpdated) {
-            loadAccounts();
-            showAlert("Success", "Interest applied to all Investment Accounts (5%).");
-        } else {
-            showAlert("Info", "No Investment Accounts found.");
-        }
-    }
+        double oldBalance = selected.getBalance();
+        double newBalance = oldBalance * 1.05;
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        selected.setBalance(newBalance);
+        AccountDAO.updateBalance(selected.getAccountId(), newBalance);
+
+        Transaction tx = new Transaction(
+                TransactionDAO.generateTransactionId(),
+                selected.getAccountId(),
+                "Interest Added",
+                newBalance - oldBalance,
+                "5% Interest Applied",
+                "",
+                userId
+        );
+
+        TransactionDAO.saveTransaction(tx);
+
+        loadAccounts();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "5% interest added successfully!");
+        alert.show();
     }
 }

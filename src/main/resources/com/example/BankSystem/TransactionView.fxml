@@ -1,53 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.*?>
-<?import javafx.collections.FXCollections?>
-
-<?import java.lang.String?>
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.BankSystem.TransactionViewController"
-            prefWidth="700" prefHeight="480">
-
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.BankSystem.TransactionViewController" prefWidth="700" prefHeight="480">
     <top>
-        <Label text="Transaction Management"
-               style="-fx-font-size: 20; -fx-font-weight: bold; -fx-padding: 15;"/>
+        <Label text="Transaction Management" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-padding: 15;"/>
     </top>
-
     <center>
         <GridPane hgap="10" vgap="10" alignment="CENTER">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
-
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
             <Label text="Account Number:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <TextField fx:id="accountNumberField" promptText="Enter account number"
-                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
+            <TextField fx:id="accountNumberField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
             <Label text="Amount:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <TextField fx:id="amountField" promptText="Enter amount"
-                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
+            <TextField fx:id="amountField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
             <Label text="Transaction Type:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <ChoiceBox fx:id="typeChoice" GridPane.rowIndex="2" GridPane.columnIndex="1">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Deposit"/>
-                        <String fx:value="Withdrawal"/>
-                        <String fx:value="Transfer"/>
-                    </FXCollections>
-                </items>
-            </ChoiceBox>
-
+            <ChoiceBox fx:id="typeChoice" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
             <Label text="Target Account (for Transfer):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <TextField fx:id="targetAccountField" promptText="Enter target account (if transfer)"
-                       GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
+            <TextField fx:id="targetAccountField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
             <Label text="Description:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <TextField fx:id="descriptionField" promptText="Optional note"
-                       GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-
+            <TextField fx:id="descriptionField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
             <HBox spacing="15" alignment="CENTER" GridPane.rowIndex="5" GridPane.columnSpan="2">
                 <Button text="Process" onAction="#handleProcessTransaction" prefWidth="140"/>
                 <Button text="View History" onAction="#handleViewHistory" prefWidth="140"/>
@@ -55,7 +26,6 @@
             </HBox>
         </GridPane>
     </center>
-
     <bottom>
         <Label fx:id="statusLabel" text="" style="-fx-text-fill: green; -fx-padding: 10;"/>
     </bottom>

@@ -45,9 +45,9 @@
                GridPane.columnIndex="1" GridPane.rowIndex="5">
         <items>
             <FXCollections fx:factory="observableArrayList">
-                <String fx:value="Savings"/>
-                <String fx:value="Cheque"/>
-                <String fx:value="Investment"/>
+                <String fx:value="Individual"/>
+                <String fx:value="Company"/>
+
             </FXCollections>
         </items>
     </ChoiceBox>

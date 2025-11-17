@@ -3,56 +3,62 @@ package com.example.BankSystem;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TransactionDAO {
 
-    // Save a transaction
+    public static String generateTransactionId() {
+        return UUID.randomUUID().toString();
+    }
+
     public static void saveTransaction(Transaction tx) {
-        String sql = "INSERT INTO transactions (accountId, type, amount, targetAccount, description, timestamp) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO transactions(transactionId, accountId, type, amount, description, targetAccount, userId, timestamp) VALUES(?,?,?,?,?,?,?,?)";
 
         try (Connection conn = DatabaseConnection.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, tx.getAccountId());
-            pstmt.setString(2, tx.getType());
-            pstmt.setDouble(3, tx.getAmount());
-            pstmt.setString(4, tx.getTargetAccount());
+            pstmt.setString(1, tx.getTransactionId());
+            pstmt.setString(2, tx.getAccountId());
+            pstmt.setString(3, tx.getType());
+            pstmt.setDouble(4, tx.getAmount());
             pstmt.setString(5, tx.getDescription());
-            pstmt.setString(6, tx.getTimestamp().toString());
+            pstmt.setString(6, tx.getTargetAccount());
+            pstmt.setString(7, tx.getUserId());
+            pstmt.setString(8, tx.getTimestamp());
 
             pstmt.executeUpdate();
-            System.out.println("✅ Transaction saved successfully.");
         } catch (SQLException e) {
-            System.out.println("❌ Error saving transaction: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Load all transactions
-    public static List<Transaction> loadTransactions() {
-        List<Transaction> transactions = new ArrayList<>();
-        String sql = "SELECT * FROM transactions";
+    public static List<Transaction> getTransactionsForUser(String userId) {
+        List<Transaction> list = new ArrayList<>();
+        String sql = "SELECT * FROM transactions WHERE userId = ? ORDER BY timestamp DESC";
 
         try (Connection conn = DatabaseConnection.connect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId);
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                transactions.add(new Transaction(
-                        rs.getInt("transactionId"),
+                list.add(new Transaction(
+                        rs.getString("transactionId"),
                         rs.getString("accountId"),
                         rs.getString("type"),
                         rs.getDouble("amount"),
-                        rs.getString("targetAccount"),
                         rs.getString("description"),
+                        rs.getString("targetAccount"),
+                        rs.getString("userId"),
                         rs.getString("timestamp")
                 ));
             }
 
         } catch (SQLException e) {
-            System.out.println("❌ Error loading transactions: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        return transactions;
+        return list;
     }
 }

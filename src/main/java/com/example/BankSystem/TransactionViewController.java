@@ -2,102 +2,98 @@ package com.example.BankSystem;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import java.util.List;
-import java.util.UUID;
 
 public class TransactionViewController {
 
     @FXML private TextField accountNumberField;
-    @FXML private TextField targetAccountField;
     @FXML private TextField amountField;
-    @FXML private TextField descriptionField;
     @FXML private ChoiceBox<String> typeChoice;
+    @FXML private TextField targetAccountField;
+    @FXML private TextField descriptionField;
     @FXML private Label statusLabel;
 
+    private String currentUserId = "1"; // default until login passes real ID
+
     @FXML
-    private void initialize() {
+    public void initialize() {
         typeChoice.getItems().addAll("Deposit", "Withdrawal", "Transfer");
+        typeChoice.setValue("Deposit"); // default
+    }
+
+    // 🔥 Must exist so MainController can pass user ID
+    public void setUserId(String userId) {
+        this.currentUserId = userId;
+        System.out.println("TransactionViewController received user ID = " + userId);
     }
 
     @FXML
     private void handleProcessTransaction() {
-        String accNum = accountNumberField.getText().trim();
-        String targetAcc = targetAccountField.getText().trim();
+        String accountId = accountNumberField.getText().trim();
         String type = typeChoice.getValue();
-        String desc = descriptionField.getText().trim();
+        String description = descriptionField.getText().trim();
+        String target = targetAccountField.getText().trim();
 
-        if (accNum.isEmpty() || type == null || amountField.getText().isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Missing Info", "Please fill in all required fields.");
-            return;
-        }
-
+        // Validate amount
         double amount;
         try {
             amount = Double.parseDouble(amountField.getText());
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Input", "Amount must be numeric.");
+        } catch (Exception e) {
+            statusLabel.setText("Invalid amount.");
             return;
         }
 
-        boolean success = false;
-
-        switch (type) {
-            case "Deposit" -> success = TransactionController.deposit(new Account(accNum, "User", 0, "Savings"), amount);
-            case "Withdrawal" -> success = TransactionController.withdraw(new Account(accNum, "User", 0, "Savings"), amount);
-            case "Transfer" -> success = TransactionController.transfer(
-                    new Account(accNum, "User", 0, "Savings"),
-                    new Account(targetAcc, "Target", 0, "Savings"),
-                    amount
-            );
+        // Validate account
+        Account account = AccountDAO.getAccountById(accountId);
+        if (account == null) {
+            statusLabel.setText("Account not found.");
+            return;
         }
 
-        if (success) {
-            statusLabel.setText("Transaction successful!");
-            statusLabel.setStyle("-fx-text-fill: green;");
-            clearFields();
-        } else {
-            statusLabel.setText("Transaction failed.");
-            statusLabel.setStyle("-fx-text-fill: red;");
+        switch (type) {
+            case "Deposit" -> {
+                TransactionController.deposit(account, amount, currentUserId);
+                statusLabel.setText("Deposit successful.");
+            }
+            case "Withdrawal" -> {
+                boolean ok = TransactionController.withdraw(account, amount, currentUserId);
+                if (ok) statusLabel.setText("Withdrawal successful.");
+                else statusLabel.setText("Insufficient funds.");
+            }
+            case "Transfer" -> {
+                Account targetAcc = AccountDAO.getAccountById(target);
+                if (targetAcc == null) {
+                    statusLabel.setText("Target account not found.");
+                    return;
+                }
+                boolean ok = TransactionController.transfer(account, targetAcc, amount, currentUserId);
+                if (ok) statusLabel.setText("Transfer successful.");
+                else statusLabel.setText("Transfer failed.");
+            }
         }
     }
 
     @FXML
     private void handleViewHistory() {
-        List<Transaction> transactions = TransactionDAO.loadTransactions();
-        StringBuilder sb = new StringBuilder();
-        for (Transaction tx : transactions) sb.append(tx).append("\n");
+        List<Transaction> list = TransactionDAO.getTransactionsForUser(currentUserId);
 
-        TextArea textArea = new TextArea(sb.toString());
-        textArea.setEditable(false);
-        textArea.setWrapText(true);
+        StringBuilder sb = new StringBuilder();
+        for (Transaction t : list) {
+            sb.append(t.getType()).append("  |  ")
+                    .append(t.getAmount()).append("  |  ")
+                    .append(t.getDescription()).append("\n");
+        }
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Transaction History");
-        alert.setHeaderText("All Transactions");
-        alert.getDialogPane().setContent(textArea);
+        alert.setHeaderText("Your Activity");
+        alert.setContentText(sb.toString());
         alert.showAndWait();
     }
 
     @FXML
     private void handleBack() {
-        Stage stage = (Stage) accountNumberField.getScene().getWindow();
-        stage.close();
-    }
-
-    private void clearFields() {
-        accountNumberField.clear();
-        amountField.clear();
-        targetAccountField.clear();
-        descriptionField.clear();
-        typeChoice.setValue(null);
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        // close window
+        accountNumberField.getScene().getWindow().hide();
     }
 }

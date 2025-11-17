@@ -1,37 +1,29 @@
 package com.example.BankSystem;
 
-public class IndividualCustomer extends Customer {
+import java.util.ArrayList;
+import java.util.List;
 
-    private String address;
-    private String phoneNumber;
-    private String idNumber;
+public class IndividualCustomer {
+    private final String userId;
+    private final String firstName, lastName, address, phone, email, idNumber;
+    private final List<Account> accounts = new ArrayList<>();
 
-    public IndividualCustomer(String customerId, String name, String username, String address,
-                              String phoneNumber, String email, String idNumber) {
-        // Call the parent Customer constructor
-        super(customerId, name, username, "defaultPass", email, "Individual");
+    public IndividualCustomer(String userId, String firstName, String lastName, String address, String phone, String email, String idNumber) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.address = address;
-        this.phoneNumber = phoneNumber;
+        this.phone = phone;
+        this.email = email;
         this.idNumber = idNumber;
     }
 
-    // ✅ Display customer details and accounts
+    public String getUserId() { return userId; }
+
+    public void addAccount(Account account) { accounts.add(account); }
+
     public void displayAccounts() {
-        System.out.println("Customer: " + getName() + " (" + getUsername() + ")");
-        for (Account account : getAccounts()) {
-            System.out.println("Account ID: " + account.getAccountId() +
-                    " | Type: " + account.getAccountType() +
-                    " | Balance: " + account.getBalance());
-        }
+        System.out.println(firstName + " " + lastName + " accounts:");
+        for (Account acc : accounts) System.out.println(acc);
     }
-
-    // Getters and setters
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
-    public String getIdNumber() { return idNumber; }
-    public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
 }
